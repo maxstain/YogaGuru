@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen"
+     style="background-image: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center;">
+    >
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center">Welcome to Yogi Nova</h2>
+        <p class="text-gray-600 mb-4 text-center">Your journey to wellness starts here.</p>
+        <div class="flex flex-col space-y-4">
+            <a href="{{ url_for('login') }}"
+               style="background-color: #96c893"
+               class="text-white py-2 rounded hover:bg-green-600 text-center"
+            >
+                Login
+            </a>
+            <a href="{{ url_for('signup') }}"
+               class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 text-center"
+            >
+                Register
+            </a>
+        </div>
+    </div>
+    {% endblock %}

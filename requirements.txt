@@ -1,0 +1,8 @@
+kagglehub
+Flask
+flask-login
+opencv-python
+tqdm
+mediapipe
+tensorflow
+scikit-learn
