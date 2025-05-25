@@ -6,3 +6,4 @@ tqdm
 mediapipe
 tensorflow
 scikit-learn
+pandas

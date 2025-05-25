@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col md:flex-row items-center justify-center gap-20 px-8 py-16 w-full">
+    <!-- Text Content -->
+    <div class="max-w-lg mb-8 md:mb-0">
+        <h1 class="text-9xl font-bold text-green-900 font-[playfair-display]">Yogi <br/>
+            <span class="text-green-100 text-8xl font-medium font-[montserrat}">Nova</span>
+        </h1>
+        <p class="mt-4 text-lg text-green-700">Rejoignez 10 000 pratiquants qui améliorent leur yoga chaque jour grâce à
+            notre correcteur IA. Postures analysées, conseils personnalisés et résultats mesurables – le futur du
+            bien-être est là.</p>
+        {% if not current_user.is_authenticated %}
+        <a href="{{url_for('login')}}"
+           style="background-color: #eacffc"
+           class="mt-4 inline-block px-6 py-3 text-white font-medium rounded-full shadow-md hover:bg-green-800">
+            Join us
+        </a>
+        {% else %}
+        <a href="{{url_for('home')}}"
+           style="background-color: #eacffc"
+           class="mt-6 inline-block px-6 py-3 text-white font-medium rounded-full shadow-md hover:bg-green-800">
+            Join us
+        </a>
+        {% endif %}
+    </div>
+    <!-- Image Content -->
+    <img src="{{url_for('static', filename='Yoga_splash.png')}}" alt="Yoga Retreat Illustration"
+         class="w-[550px] h-[500px] object-center rounded-lg">
+</div>
+{% endblock %}
