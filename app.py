@@ -41,31 +41,64 @@ users = {
 
 positions = {
     "tree_pose": {
-        "description": "Stand tall with one foot on the inner thigh of the opposite leg, hands in prayer position.",
-        "image": "tree_pose.jpg"
+        "name": "Tree Pose",
+        "purpose": "Improves balance, focus, and strengthens legs.",
+        "image": "tree_pose.jpg",
+        "steps": [
+            "Stand tall with one foot on the inner thigh of the opposite leg.",
+            "Raise your arms to the sides, forming a V shape.",
+            "Engage your core and lift your hips off the ground.",
+            "Hold the pose for 30 seconds, focusing on deep breathing."
+        ],
     },
     "downward_dog": {
-        "description": "Start on all fours, lift your hips up and back, forming an inverted V shape.",
-        "image": "downward_dog.jpg"
+        "name": "Downward Dog",
+        "purpose": "Stretches the entire body, strengthens arms and legs.",
+        "image": "downward_dog.jpg",
+        "steps": [
+            "Start on all fours with your hands under your shoulders and knees under your hips.",
+            "Spread your fingers wide and press into the ground.",
+            "Lift your hips up and back, straightening your legs and arms.",
+            "Hold the pose for 30 seconds, breathing deeply."
+        ],
     },
     "warrior_pose": {
-        "description": "Stand with legs apart, turn one foot out, bend the knee, and extend arms parallel to the ground.",
-        "image": "warrior_pose.jpg"
+        "name": "Warrior Pose",
+        "purpose": "Strengthens legs, opens hips, and improves focus.",
+        "image": "warrior_pose.jpg",
+        "steps": [
+            "Stand with legs apart, feet wide apart.",
+            "Turn one foot out 90 degrees, bending the knee.",
+            "Extend arms parallel to the ground.",
+            "Hold the pose for 30 seconds, focusing on deep breathing."
+        ],
     },
-    "godess_pose": {
-        "description": "Stand with feet wide apart, toes turned out, bend knees, and lower hips while raising arms to shoulder height.",
-        "image": "godess_pose.jpg"
+    "goddess_pose": {
+        "name": "Goddess Pose",
+        "purpose": "Strengthens legs, opens hips, and improves balance.",
+        "image": "goddess_pose.jpg",
+        "steps": [
+            "Stand with feet wide apart, toes turned out.",
+            "Bend knees, lower hips, and raise arms to shoulder height.",
+            "Hold the pose for 30 seconds, focusing on deep breathing."
+        ],
     },
     "plank_pose": {
-        "description": "Start in a push-up position, keeping your body straight from head to heels.",
-        "image": "plank_pose.jpg"
+        "name": "Plank Pose",
+        "purpose": "Strengthens core, arms, and back.",
+        "image": "plank_pose.jpg",
+        "steps": [
+            "Start in a push-up position with your body straight.",
+            "Engage your core and keep your elbows close to your body.",
+            "Hold the pose for 30 seconds, focusing on deep breathing."
+        ],
     }
 }
 
 
 def get_pose_info(pose_name):
     """Retrieve pose information by name."""
-    return positions.get(pose_name, {"description": "Pose not found", "image": "default.jpg"})
+    return positions.get(pose_name, {"name": "", "purpose": "Pose not found", "image": "default.jpg", "steps": []})
 
 
 class User(UserMixin):

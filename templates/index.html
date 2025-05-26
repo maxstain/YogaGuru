@@ -4,25 +4,33 @@
     document.addEventListener('DOMContentLoaded', function () {
         const positionSelect = document.getElementById('position-select');
         const positionImage = document.getElementById('position-image');
-        const positionDescription = document.getElementById('position-description');
+        const positionPurpose = document.getElementById('position-purpose');
         const startButton = document.getElementById('start-button');
         const openCameraButton = document.getElementById('open-camera-button');
-        const positions = {
-        {
-            positions | tojson
-        }
-    }
-        ;
+        const positionSteps = document.getElementById('position-steps');
+        const positions = {{ positions | tojson }};
+        const poseInfo = {{ pose_info | tojson }};
 
-        // Update image and description based on selected position
+        // Update image and description based on the selected position
         positionSelect.addEventListener('change', function () {
             const selectedPosition = this.value;
             if (selectedPosition && positions[selectedPosition]) {
                 positionImage.src = `/static/poses/${positions[selectedPosition].image}`;
-                positionDescription.textContent = positions[selectedPosition].description;
+                positionPurpose.textContent = positions[selectedPosition].purpose;
+                positionSteps.innerHTML = '';
+                if (positions[selectedPosition].steps && positions[selectedPosition].steps.length > 0) {
+                    positions[selectedPosition].steps.forEach(function(step) {
+                        const li = document.createElement('li');
+                        li.textContent = step;
+                        positionSteps.appendChild(li);
+                    });
+                } else {
+                    positionSteps.innerHTML = '<li>No steps available for this position.</li>';
+                }
             } else {
                 positionImage.src = '/static/Yoga_splash.png';
                 positionDescription.textContent = 'Select a position to see its description.';
+                positionSteps.innerHTML = '<li>Select a position to see the steps.</li>';
             }
         });
 
@@ -31,25 +39,19 @@
             alert('Starting the yoga session!');
             // Add logic to start the session here
         });
-
-        // Handle open camera button click
-        openCameraButton.addEventListener('click', function () {
-            alert('Opening camera for yoga pose detection!');
-            // Add logic to open the camera here
-        });
     });
 </script>
-<div class="flex flex-col items-center justify-center">
+<div class="flex flex-col items-center justify-center gap-5">
     <!-- position dropdown selection -->
     <div class="flex flex-col items-center space-y-4">
-        <p class="text-lg text-gray-700 mb-2">Select your yoga position to get started</p>
-        <label for="position-select"></label>
+        <label for="position-select" class="text-lg text-gray-700 mb-2 mt-10">
+            Select your yoga position to get started
+        </label>
         <select id="position-select"
-                class="w-full max-w-xs p-2 text-gray-800 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
+                class="w-full max-w-xs p-2 text-gray-800 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
             <option value="" disabled selected>Select a position</option>
             {% for position in positions %}
-            <option value="{{position}}">{{position}}</option>
+            <option value="{{ position }}">{{ positions[position].name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -57,7 +59,9 @@
         <!-- Pose section -->
         <div class="rounded-lg p-8 border border-gray-300 shadow-md bg-white/10 w-[500px] h-[500px] flex flex-col items-center justify-between">
             {% if pose_info %}
-            <p id="position-description" class="p-2 text-center">Select a position</p>
+            <p id="position-purpose" class="p-2 text-center font-semibold">Select a position</p>
+            <ol id="position-steps" class="list-decimal list-inside text-gray-700 mb-4">
+            </ol>
             {% endif %}
             <div class="w-full grid gap-5">
                 <div class="w-full py-9 bg-gray-50 rounded-2xl border border-gray-300 border-dashed">
@@ -77,7 +81,7 @@
                             <div class="flex items-center justify-center">
                                 <label>
                                     <input type="file" hidden/>
-                                    <div class="flex w-28 h-9 px-2 flex-col bg-indigo-600 rounded-full shadow text-white text-xs font-semibold leading-4 items-center justify-center cursor-pointer focus:outline-none">
+                                    <div class="flex w-28 h-9 px-2 flex-col bg-green-700 rounded-full shadow text-white text-xs font-semibold leading-4 items-center justify-center cursor-pointer focus:outline-none">
                                         Choose File
                                     </div>
                                 </label>
