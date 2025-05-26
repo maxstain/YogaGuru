@@ -1,3 +1,21 @@
+import os
+
+# Clear the console and install required packages
+if os.path.exists("requirements.txt"):
+    # Verify if the operating system is Windows
+    if os.name == 'nt':
+        # Clear the console for Windows
+        os.system("cls")
+        os.system("python.exe -m pip install --upgrade pip")
+        os.system("pip install -r requirements.txt")
+        os.system("cls")
+    else:
+        # Clear the console for Unix/Linux/Mac
+        os.system("clear")
+        os.system("python.exe -m pip install --upgrade pip")
+        os.system("pip install -r requirements.txt")
+        os.system("clear")
+
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 

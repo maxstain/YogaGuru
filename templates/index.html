@@ -1,5 +1,44 @@
 {% extends "base.html" %}
 {% block content %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const positionSelect = document.getElementById('position-select');
+        const positionImage = document.getElementById('position-image');
+        const positionDescription = document.getElementById('position-description');
+        const startButton = document.getElementById('start-button');
+        const openCameraButton = document.getElementById('open-camera-button');
+        const positions = {
+        {
+            positions | tojson
+        }
+    }
+        ;
+
+        // Update image and description based on selected position
+        positionSelect.addEventListener('change', function () {
+            const selectedPosition = this.value;
+            if (selectedPosition && positions[selectedPosition]) {
+                positionImage.src = `/static/poses/${positions[selectedPosition].image}`;
+                positionDescription.textContent = positions[selectedPosition].description;
+            } else {
+                positionImage.src = '/static/Yoga_splash.png';
+                positionDescription.textContent = 'Select a position to see its description.';
+            }
+        });
+
+        // Handle start button click
+        startButton.addEventListener('click', function () {
+            alert('Starting the yoga session!');
+            // Add logic to start the session here
+        });
+
+        // Handle open camera button click
+        openCameraButton.addEventListener('click', function () {
+            alert('Opening camera for yoga pose detection!');
+            // Add logic to open the camera here
+        });
+    });
+</script>
 <div class="flex flex-col items-center justify-center">
     <!-- position dropdown selection -->
     <div class="flex flex-col items-center space-y-4">
@@ -18,7 +57,7 @@
         <!-- Pose section -->
         <div class="rounded-lg p-8 border border-gray-300 shadow-md bg-white/10 w-[500px] h-[500px] flex flex-col items-center justify-between">
             {% if pose_info %}
-            <p class="p-2 text-center">{{pose_info.description}}</p>
+            <p id="position-description" class="p-2 text-center">Select a position</p>
             {% endif %}
             <div class="w-full grid gap-5">
                 <div class="w-full py-9 bg-gray-50 rounded-2xl border border-gray-300 border-dashed">
@@ -58,7 +97,6 @@
         <div class="flex flex-col items-center space-y-4 mt-8">
             <img id="position-image" src="{{ url_for('static', filename='Yoga_splash.png') }}"
                  alt="Yoga Position" class="w-[500px] h-[400px] object-center rounded-lg">
-            <p id="position-description" class="text-gray-600 text-center">Select a position to see its description.</p>
             <button id="start-button"
                     class="mt-4 px-6 py-2 bg-green-700 text-white font-medium rounded-full shadow-md hover:bg-green-800"
             >

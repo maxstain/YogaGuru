@@ -26,5 +26,5 @@ https://github.com/user-attachments/assets/2336b7b0-bed2-45cb-9c54-8b786dae9d80
 ## Installation
 
 ### Prerequisites
-- Python 3.8+
+- Python >=3.7, <=3.12
 - Webcam
