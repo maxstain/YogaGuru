@@ -96,12 +96,3 @@ class YogaPoseDetector:
             return "Pose not detected", 0.0
         pose_name, confidence = self.predict_pose(img_input, angle_input)
         return pose_name, confidence
-
-
-if __name__ == "__main__":
-    detector = YogaPoseDetector()
-    # Load the model and class mapping
-    detector.load_model('yoga_pose_model.h5', 'class_mapping.pkl')
-    # Example usage
-    pose_name, confidence = detector.detect_pose('path_to_your_image.jpg')
-    print(f"Detected Pose: {pose_name}, Confidence: {confidence:.2f}")

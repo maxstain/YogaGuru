@@ -6,7 +6,8 @@
         <h1 class="text-9xl font-bold text-green-900 font-[playfair-display] italic">Yogi <br/>
             <span class="text-green-100 text-8xl font-medium font-[playfair-display] italic">Nova</span>
         </h1>
-        <p class="mt-4 text-lg text-green-700">Join 10,000 yogis who enhance their practice daily with our AI posture
+        <p id="text" class="mt-4 text-lg text-green-700">Join 10,000 yogis who enhance their practice daily with our AI
+            posture
             coach. Real-time alignment analysis, personalized feedback, and measurable progress – the future of mindful
             movement is here.</p>
         {% if not current_user.is_authenticated %}
@@ -22,9 +23,70 @@
             Join Now
         </a>
         {% endif %}
+        <!-- The index circles of texts -->
+        <div id="text-indexes" class="mt-6 flex gap-1"></div>
     </div>
     <!-- Image Content -->
     <img src="{{url_for('static', filename='Yoga_splash.png')}}" alt="Yoga Retreat Illustration"
          class="w-[550px] h-[500px] object-center rounded-lg">
 </div>
+<script>
+    let texts = [
+        "Join 10,000 yogis who enhance their practice daily with our AI posture\n" +
+        "            coach. Real-time alignment analysis, personalized feedback, and measurable progress – the future of mindful\n" +
+        "            movement is here.",
+        "Master every pose with real-time feedback\n" +
+        "Unlock your full potential with AI-powered posture correction.\n" +
+        "Whether you're a beginner or advanced, our system guides you instantly—helping you move better, safer, and smarter.",
+        "Because perfect form changes everything\n" +
+        "Precision isn’t just about technique—it’s the key to faster progress, safer practice, and a deeper mind-body connection.\n" +
+        "Our smart coaching helps you align every movement, every time."
+    ];
+    let currentIndex = 0;
+
+    const textIndexes = document.querySelector('#text-indexes');
+    // Initialize index circles
+    texts.forEach((text, index) => {
+        const circle = document.createElement('span');
+        circle.className = 'inline-block w-3 h-3 rounded-full bg-green-700 cursor-pointer';
+        circle.style.opacity = (index === currentIndex) ? '1' : '0.5';
+        circle.addEventListener('click', () => {
+            currentIndex = index;
+            changeText();
+        });
+        textIndexes.appendChild(circle);
+    });
+
+    // Function to change text with transition
+    function changeText() {
+        const textElement = document.querySelector('#text');
+        textElement.textContent = texts[currentIndex];
+        textElement.classList.add('transition', 'duration-500', 'ease-in-out', 'opacity-0');
+        setTimeout(() => {
+            textElement.classList.remove('opacity-0');
+        }, 500);
+        // Update index circles
+        textIndexes.innerHTML = ''; // Clear previous circles
+        texts.forEach((text, index) => {
+            const circle = document.createElement('span');
+            circle.className = 'inline-block w-3 h-3 rounded-full bg-green-700 cursor-pointer';
+            circle.style.opacity = (index === currentIndex) ? '1' : '0.5';
+            circle.addEventListener('click', () => {
+                currentIndex = index;
+                changeText();
+            });
+            textIndexes.appendChild(circle);
+        });
+        // Update current index
+        const circles = textIndexes.querySelectorAll('span');
+        circles.forEach((circle, index) => {
+            circle.style.opacity = (index === currentIndex) ? '1' : '0.5';
+        });
+        currentIndex = (currentIndex + 1) % texts.length;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setInterval(changeText, 5000); // Change text every 5 seconds
+    });
+</script>
 {% endblock %}
