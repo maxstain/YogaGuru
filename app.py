@@ -171,12 +171,7 @@ def signup():
 @app.route('/home')
 @login_required
 def home():
-    detector = YogaPoseDetector()
-    # Load the model and class mapping
-    detector.load_model('yoga_pose_model.h5', 'class_mapping.pkl')
-    # Example usage
-    pose_name, confidence = detector.detect_pose('path_to_your_image.jpg')
-    print(f"Detected Pose: {pose_name}, Confidence: {confidence:.2f}")
+    YogaPoseDetector()
     selected_pose = request.args.get('pose', 'tree_pose')
     is_camera = request.args.get('camera', 'false').lower() == 'true'
     if is_camera:
