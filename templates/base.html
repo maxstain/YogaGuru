@@ -41,10 +41,12 @@
     <a href="{{url_for('index')}}" class="text-2xl font-bold text-green-800">
         <img src="{{ url_for('static', filename='3.png') }}" alt="logo" class="inline-block h-20 w-20">
     </a>
+    {% if request.endpoint not in ['login', 'signup'] %}
     <nav class="flex space-x-6">
         <a href="{{ url_for('login') }}" class="text-gray-800 hover:underline">Login</a>
         <a href="{{ url_for('signup') }}" class="text-gray-800 hover:underline">Register</a>
     </nav>
+    {% endif %}
     {% endif %}
 </div>
 {% block content %}

@@ -2,10 +2,14 @@
 {% block content %}
 <div class="flex flex-col items-center justify-center min-h-screen">
     <div class="flex bg-white px-8 py-8 lg:p-20 rounded-lg shadow-md flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0">
-        <img class="lg:w-[550px] lg:h-[550px] w-[200px] h-[200px]" src="{{url_for('static', filename='login.jpg')}}" alt="login"/>
+        <img class="lg:w-[550px] lg:h-[550px] w-[200px] h-[200px]" src="{{url_for('static', filename='login.jpg')}}"
+             alt="login"/>
         <div class="w-72">
-            <h2 class="text-2xl font-bold mb-6">Sign up</h2>
-            <p class="text-gray-600 mb-4">Sign up to access Yogi nova</p>
+            <h2 class="text-2xl font-semibold mb-6">Welcome to
+                <span class="text-green-900 font-bold font-[playfair-display] italic">Yogi</span>
+                <span class="text-green-300 font-bold font-[playfair-display] italic">Nova</span>
+            </h2>
+            <p class="text-gray-600 mb-4">Sign up to create your Yogi nova account</p>
             <form class="flex flex-col space-y-4" method="POST" action="{{ url_for('signup') }}">
                 <div>
                     <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
