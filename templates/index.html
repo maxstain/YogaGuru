@@ -16,10 +16,14 @@
         const cameraFeed = document.getElementById('camera-feed');
         const positions = JSON.parse('{{ positions | tojson | safe }}');
         const poseInfo = JSON.parse('{{ pose_info | tojson | safe }}');
+        const fileInput = document.getElementById('pose-image-upload');
+        const resultDiv = document.getElementById('compare-result');
         let stream = null;
 
         poseSection.classList.add('flex');
         cameraSection.classList.add('hidden');
+        fileInput.value = '';
+        positionSelect.value = '';
 
         // Update image and description based on the selected position
         positionSelect.addEventListener('change', function () {
@@ -65,9 +69,31 @@
             cameraFeed.src = ""; // Stop the video feed
         });
 
+        const thumbsUpSVG = `
+            <svg height="200px" width="100px" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" xml:space="preserve" fill="#96c893" stroke="#96c893">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g id="check_x5F_alt"> <path style="fill:#fff;" d="M16,0C7.164,0,0,7.164,0,16s7.164,16,16,16s16-7.164,16-16S24.836,0,16,0z M13.52,23.383 L6.158,16.02l2.828-2.828l4.533,4.535l9.617-9.617l2.828,2.828L13.52,23.383z">
+            </path> </g> </g> </g>
+            </svg>
+        `;
+
+        // Handle file input change to change the right section image to the selected image
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    positionImage.src = e.target.result;
+                    positionPurpose.textContent = "Image uploaded successfully";
+                    positionSteps.innerHTML = thumbsUpSVG;
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                positionImage.src = '/static/Yoga_splash.png';
+                positionPurpose.textContent = "Select a position";
+                positionSteps.innerHTML = '<li>Select a position to see the steps.</li>';
+            }
+        });
+
         document.getElementById('compare-pose-btn').addEventListener('click', function () {
-            const fileInput = document.getElementById('pose-image-upload');
-            const resultDiv = document.getElementById('compare-result');
             if (!fileInput.files.length) {
                 resultDiv.textContent = "Please select an image.";
                 return;
@@ -135,8 +161,8 @@
                     <button id="compare-pose-btn" class="px-4 py-2 bg-green-600 text-white rounded">
                         Compare Pose
                     </button>
-                    <div id="compare-result" class="text-green-700 font-bold"></div>
                 </div>
+                <div id="compare-result" class="text-green-700 font-bold text-center"></div>
                 <button
                         id="open-camera-button"
                         class="w-full px-6 py-2 bg-green-700 text-white font-medium rounded-full shadow-md hover:bg-green-800 focus:outline-none"

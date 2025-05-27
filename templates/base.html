@@ -33,18 +33,22 @@
     <a href="{{url_for('home')}}" class="p-2">
         <img src="{{ url_for('static', filename='3.png') }}" alt="logo" class="inline-block h-20 w-20">
     </a>
-    <nav class="flex space-x-6">
-        <a href="{{url_for('home')}}" class="text-gray-800 hover:underline">Home</a>
-        <a href="{{url_for('logout')}}" class="text-gray-800 hover:underline">Logout</a>
+    <nav class="flex space-x-4">
+        <a href="{{url_for('home')}}" style="background-color: #eacffc"
+           class="mt-6 inline-block px-6 py-3 text-green-800 font-bold rounded-full shadow-md hover:bg-green-800">Home</a>
+        <a href="{{url_for('logout')}}" style="background-color: #eacffc"
+           class="mt-6 inline-block px-6 py-3 text-green-800 font-bold rounded-full shadow-md hover:bg-green-800">Logout</a>
     </nav>
     {% else %}
     <a href="{{url_for('index')}}" class="text-2xl font-bold text-green-800">
         <img src="{{ url_for('static', filename='3.png') }}" alt="logo" class="inline-block h-20 w-20">
     </a>
     {% if request.endpoint not in ['login', 'signup'] %}
-    <nav class="flex space-x-6">
-        <a href="{{ url_for('login') }}" class="text-gray-800 hover:underline">Login</a>
-        <a href="{{ url_for('signup') }}" class="text-gray-800 hover:underline">Register</a>
+    <nav class="flex space-x-4">
+        <a href="{{ url_for('login') }}" style="background-color: #eacffc"
+           class="mt-6 inline-block px-6 py-3 text-green-800 font-bold rounded-full shadow-md hover:bg-green-800">Login</a>
+        <a href="{{ url_for('signup') }}" style="background-color: #eacffc"
+           class="mt-6 inline-block px-6 py-3 text-green-800 font-bold rounded-full shadow-md hover:bg-green-800">Register</a>
     </nav>
     {% endif %}
     {% endif %}

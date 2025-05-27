@@ -41,11 +41,11 @@ coach = YogaPoseCoach(model_path='Model/best_model.h5', mapping_path='Model/clas
 users = {
     "admin": {
         "email": "admin@admin.com",
-        "password": "admin123"
+        "password": "admin"
     },
     "user1": {
         "email": "user1@example.com",
-        "password": "user1123"
+        "password": "user"
     }
 }
 
@@ -55,10 +55,12 @@ positions = {
         "purpose": "Improves balance, focus, and strengthens legs.",
         "image": "tree_pose.jpg",
         "steps": [
-            "Stand tall with one foot on the inner thigh of the opposite leg.",
-            "Raise your arms to the sides, forming a V shape.",
-            "Engage your core and lift your hips off the ground.",
-            "Hold the pose for 30 seconds, focusing on deep breathing."
+            "Stand tall with feet together and arms at your sides.",
+            "Shift weight onto your left foot.",
+            "Place the sole of your right foot on your left inner thigh or calf (avoid the knee).",
+            "Bring your hands together in prayer position at your chest, or raise them overhead.",
+            "Keep your gaze fixed on a point for balance.",
+            "Hold for 30 seconds to 1 minute, then switch sides."
         ],
     },
     "downward_dog": {
@@ -66,10 +68,12 @@ positions = {
         "purpose": "Stretches the entire body, strengthens arms and legs.",
         "image": "downward_dog.jpg",
         "steps": [
-            "Start on all fours with your hands under your shoulders and knees under your hips.",
-            "Spread your fingers wide and press into the ground.",
-            "Lift your hips up and back, straightening your legs and arms.",
-            "Hold the pose for 30 seconds, breathing deeply."
+            "Start on your hands and knees in a tabletop position.",
+            "Spread your fingers wide and tuck your toes under.",
+            "Lift your hips up and back, straightening your legs as much as comfortable.",
+            "Press your heels toward the floor (knees can stay slightly bent).",
+            "Keep your head between your arms and your back straight.",
+            "Hold for 1–3 minutes, breathing deeply."
         ],
     },
     "warrior_pose": {
@@ -77,10 +81,12 @@ positions = {
         "purpose": "Strengthens legs, opens hips, and improves focus.",
         "image": "warrior_pose.jpg",
         "steps": [
-            "Stand with legs apart, feet wide apart.",
-            "Turn one foot out 90 degrees, bending the knee.",
-            "Extend arms parallel to the ground.",
-            "Hold the pose for 30 seconds, focusing on deep breathing."
+            "Stand tall, then step your left foot back about 3–4 feet.",
+            "Turn your left foot slightly out, and bend your right knee over the ankle.",
+            "Keep your hips square facing forward.",
+            "Raise your arms overhead, palms facing each other.",
+            "Gaze forward or slightly up.",
+            "Hold for 30 seconds to 1 minute, then switch sides."
         ],
     },
     "goddess_pose": {
@@ -88,9 +94,11 @@ positions = {
         "purpose": "Strengthens legs, opens hips, and improves balance.",
         "image": "goddess_pose.jpg",
         "steps": [
-            "Stand with feet wide apart, toes turned out.",
-            "Bend knees, lower hips, and raise arms to shoulder height.",
-            "Hold the pose for 30 seconds, focusing on deep breathing."
+            "Stand with feet wide apart (about 3 feet), toes turned out at 45°.",
+            "Bend your knees deeply, aligning them over your ankles.",
+            "Keep your back straight and pelvis neutral.",
+            "Bring your arms to shoulder height, bend the elbows, palms facing forward.",
+            "Engage your core and hold for 30 seconds to 1 minute."
         ],
     },
     "plank_pose": {
@@ -98,9 +106,12 @@ positions = {
         "purpose": "Strengthens core, arms, and back.",
         "image": "plank_pose.jpg",
         "steps": [
-            "Start in a push-up position with your body straight.",
-            "Engage your core and keep your elbows close to your body.",
-            "Hold the pose for 30 seconds, focusing on deep breathing."
+            "Start in a tabletop position.",
+            "Step both feet back, forming a straight line from head to heels.",
+            "Hands should be shoulder-width apart, directly under shoulders.",
+            "Engage your core and keep your hips level.",
+            "Keep neck neutral, gaze down.",
+            "Hold for 30 seconds to 1 minute, breathing evenly."
         ],
     }
 }
