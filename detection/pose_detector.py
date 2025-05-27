@@ -116,7 +116,7 @@ def process_dataset(dataset_path):
         }
     ).to_dict()
 
-    with open('pose_standards.pkl', 'wb') as f:
+    with open('../Model/pose_standards.pkl', 'wb') as f:
         pickle.dump(pose_standards, f)
 
     return df, pose_standards
@@ -166,7 +166,7 @@ def prepare_data(df):
 
 def train_model():
     # Load processed data
-    df = pd.read_pickle('yoga_dataset_processed.pkl')
+    df = pd.read_pickle('../Model/yoga_dataset_processed.pkl')
 
     # Prepare data
     X_img, X_ang, y, class_to_idx = prepare_data(df)
@@ -189,7 +189,7 @@ def train_model():
     # Define callbacks
     training_callbacks = [
         EarlyStopping(patience=5, restore_best_weights=True),
-        ModelCheckpoint('best_model.h5', save_best_only=True),
+        ModelCheckpoint('../Model/best_model.h5', save_best_only=True),
         ReduceLROnPlateau(factor=0.1, patience=3)
     ]
 
@@ -205,7 +205,7 @@ def train_model():
 
     # Save class mapping
     idx_to_class = {v: k for k, v in class_to_idx.items()}  # Reverse mapping
-    with open('class_mapping.pkl', 'wb') as f:
+    with open('../Model/class_mapping.pkl', 'wb') as f:
         pickle.dump(idx_to_class, f)  # New: {0:'downdog', 1:'warrior'}
 
     return model, history
@@ -340,8 +340,8 @@ def get_feedback(pose_name, angles, confidence):
 # Main Application
 def main():
     # Load model
-    model = tf.keras.models.load_model('best_model.h5')
-    with open('class_mapping.pkl', 'rb') as f:
+    model = tf.keras.models.load_model('../Model/best_model.h5')
+    with open('../Model/class_mapping.pkl', 'rb') as f:
         idx_to_class = pickle.load(f)
 
     cap = cv2.VideoCapture(0)
@@ -349,50 +349,46 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
     last_feedback = time.time()
-    prev_pose = None
+
+    def process_frame(frame):
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = pose.process(rgb)
+        if not results.pose_landmarks:
+            return frame, None, None, None
+        points, angles = get_angles(results.pose_landmarks, frame.shape)
+        if angles is None:
+            return frame, None, None, None
+        img_input = cv2.resize(rgb, (224, 224)) / 255.0
+        pose_name, confidence = predict_pose(model, img_input, angles, idx_to_class)
+        angle_text = " ".join([f"{a:.1f}°" for a in angles])
+        cv2.putText(frame, angle_text, (30, 100),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        mp_drawing.draw_landmarks(
+            frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
+            landmark_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2),
+            connection_drawing_spec=mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2)
+        )
+        cv2.putText(frame, f"{pose_name} ({confidence:.2f})", (30, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
+        return frame, pose_name, angles, confidence
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Process frame
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = pose.process(rgb)
+        frame, pose_name, angles, confidence = process_frame(frame)
 
-        if results.pose_landmarks:
-            points, angles = get_angles(results.pose_landmarks, frame.shape)
+        if pose_name is not None and angles is not None and confidence is not None:
+            if time.time() - last_feedback > 3:
+                feedback = get_feedback(pose_name, angles, confidence)
+                if feedback:
+                    voice.speak(feedback[0])
+                    cv2.putText(frame, feedback[0], (30, 50),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+                    last_feedback = time.time()
 
-            if angles is not None:
-                img_input = cv2.resize(rgb, (224, 224)) / 255.0
-                pose_name, confidence = predict_pose(model, img_input, angles, idx_to_class)
-
-                # Display angles for debugging
-                angle_text = " ".join([f"{a:.1f}°" for a in angles])
-                cv2.putText(frame, angle_text, (30, 100),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-
-                # Give feedback periodically
-                if time.time() - last_feedback > 3:
-                    feedback = get_feedback(pose_name, angles, confidence)
-                    if feedback:
-                        voice.speak(feedback[0])
-                        cv2.putText(frame, feedback[0], (30, 50),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
-                        last_feedback = time.time()
-
-                # Draw landmarks
-                mp_drawing.draw_landmarks(
-                    frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2),
-                    connection_drawing_spec=mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2)
-                )
-
-                # Display pose info
-                cv2.putText(frame, f"{pose_name} ({confidence:.2f})", (30, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
-
-        cv2.imshow('Yoga Coach (Q to quit)', frame)
+        cv2.imshow('Yogi Nova (Q to quit)', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
