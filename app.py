@@ -1,5 +1,7 @@
 import os
 
+import cv2
+
 # Clear the console and install required packages
 if os.path.exists("requirements.txt"):
     # Verify if the operating system is Windows
@@ -16,9 +18,9 @@ if os.path.exists("requirements.txt"):
         os.system("pip install -r requirements.txt")
         os.system("clear")
 
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, Response
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from detection.pose_detector import YogaPoseDetector
+from detection.pose_detector import main
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -97,9 +99,31 @@ positions = {
 }
 
 
+def gen_frames():
+    cap = cv2.VideoCapture(0)
+    while True:
+        success, frame = cap.read()
+        if not success:
+            break
+        else:
+            # Encode frame as JPEG
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            # Yield frame in byte format for MJPEG
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+
+@app.route('/video_feed')
+@login_required
+def video_feed():
+    return Response(main(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
 def get_pose_info(pose_name):
     """Retrieve pose information by name."""
-    return positions.get(pose_name, {"name": "", "purpose": "Pose not found", "image": "default.jpg", "steps": []})
+    return positions.get(pose_name, {"name": "", "purpose": "Pose not found", "image": "Yoga_splash.jpg", "steps": []})
 
 
 class User(UserMixin):
@@ -168,20 +192,26 @@ def signup():
     return render_template('signup.html')
 
 
+def run_pose_detection():
+    main()
+
+
 @app.route('/home')
 @login_required
 def home():
-    YogaPoseDetector()
     selected_pose = request.args.get('pose', 'tree_pose')
     is_camera = request.args.get('camera', 'false').lower() == 'true'
     if is_camera:
-        flash("Camera mode is enabled. Please ensure your camera is connected.", "info")
+        run_pose_detection()
     else:
-        flash("Camera mode is disabled. You can enable it in the settings.", "info")
+        # If not using camera, we can just display the selected pose
+        pass
     return render_template('index.html', user=current_user,
                            pose_info=get_pose_info(selected_pose),
                            positions=positions,
-                           is_camera=is_camera)
+                           camera=is_camera,
+                           selected_pose=selected_pose
+                           )
 
 
 if __name__ == '__main__':
