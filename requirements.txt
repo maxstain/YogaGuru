@@ -9,3 +9,4 @@ scikit-learn
 pandas
 pyttsx3
 numpy
+matplotlib

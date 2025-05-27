@@ -9,6 +9,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='Yoga_Logo.png') }}">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .loader {
+            border-width: 4px;
+            border-style: solid;
+            border-radius: 9999px;
+            width: 4rem;
+            height: 4rem;
+            border-color: #22c55e transparent #22c55e #22c55e;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 <body style="background-color: #96c893">
 <div class="flex justify-between items-center px-10">

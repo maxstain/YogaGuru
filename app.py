@@ -1,7 +1,5 @@
 import os
 
-import cv2
-
 # Clear the console and install required packages
 if os.path.exists("requirements.txt"):
     # Verify if the operating system is Windows
@@ -18,9 +16,13 @@ if os.path.exists("requirements.txt"):
         os.system("pip install -r requirements.txt")
         os.system("clear")
 
-from flask import Flask, request, render_template, redirect, url_for, flash, Response
+from flask import Flask, request, render_template, redirect, url_for, flash, Response, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from detection.pose_detector import main
+from detection.pose_detector import gen_pose_frames
+from detection.pose_detector import mp
+from detection.pose_detector import YogaPoseCoach
+import numpy as np
+import cv2
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -29,6 +31,11 @@ login_manager.init_app(app)
 
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+mp_pose = mp.solutions.pose
+pose = mp_pose.Pose(static_image_mode=True)
+
+coach = YogaPoseCoach(model_path='Model/best_model.h5', mapping_path='Model/class_mapping.pkl')
 
 # Hardcoded users dictionary
 users = {
@@ -99,25 +106,10 @@ positions = {
 }
 
 
-def gen_frames():
-    cap = cv2.VideoCapture(0)
-    while True:
-        success, frame = cap.read()
-        if not success:
-            break
-        else:
-            # Encode frame as JPEG
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            # Yield frame in byte format for MJPEG
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-
 @app.route('/video_feed')
 @login_required
 def video_feed():
-    return Response(main(),
+    return Response(gen_pose_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -137,6 +129,27 @@ class User(UserMixin):
             user_data = users[username]
             return cls(username, user_data['email'])
         return None
+
+
+@app.route('/compare_pose', methods=['POST'])
+def compare_pose():
+    file = request.files['image']
+    npimg = np.frombuffer(file.read(), np.uint8)
+    img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+    rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    results = pose.process(rgb)
+    if not results.pose_landmarks:
+        return jsonify({'error': 'No pose detected'}), 400
+
+    _, angles = coach.get_angles(results.pose_landmarks, img.shape)
+    if angles is None:
+        return jsonify({'error': 'Incomplete pose'}), 400
+
+    img_input = cv2.resize(rgb, (224, 224)) / 255.0
+    pose_name, confidence = coach.predict_pose(img_input, angles)
+    accuracy = round(confidence * 100, 2)
+
+    return jsonify({'pose': pose_name, 'accuracy': accuracy})
 
 
 @login_manager.user_loader
@@ -192,20 +205,11 @@ def signup():
     return render_template('signup.html')
 
 
-def run_pose_detection():
-    main()
-
-
 @app.route('/home')
 @login_required
 def home():
     selected_pose = request.args.get('pose', 'tree_pose')
     is_camera = request.args.get('camera', 'false').lower() == 'true'
-    if is_camera:
-        run_pose_detection()
-    else:
-        # If not using camera, we can just display the selected pose
-        pass
     return render_template('index.html', user=current_user,
                            pose_info=get_pose_info(selected_pose),
                            positions=positions,
