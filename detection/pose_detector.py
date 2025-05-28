@@ -15,12 +15,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
+
 class YogaPoseCoach:
     def __init__(self, model_path='../Model/best_model.h5', mapping_path='../Model/class_mapping.pkl'):
         os.system("python -m pip install --upgrade certifi")
         # Process dataset and train model
-        ### dataset_path = kagglehub.dataset_download("niharika41298/yoga-poses-dataset")
-        ### shutil.move(dataset_path, "./Dataset")
+        if not os.path.exists("./Dataset"):
+            dataset_path = kagglehub.dataset_download("niharika41298/yoga-poses-dataset")
+            shutil.move(dataset_path, "./Dataset")
         dataset_path = "./Dataset"
         # Load model and class mapping
         self.model = tf.keras.models.load_model(model_path)
