@@ -19,11 +19,11 @@ from tqdm import tqdm
 class YogaPoseCoach:
     def __init__(self, model_path='../Model/best_model.h5', mapping_path='../Model/class_mapping.pkl'):
         os.system("python -m pip install --upgrade certifi")
+        ds_path = "./Dataset"
         # Process dataset and train model
-        if not os.path.exists("./Dataset"):
+        if not os.path.exists(ds_path):
             dataset_path = kagglehub.dataset_download("niharika41298/yoga-poses-dataset")
-            shutil.move(dataset_path, "./Dataset")
-        dataset_path = "./Dataset"
+            shutil.move(dataset_path, ds_path)
         # Load model and class mapping
         self.model = tf.keras.models.load_model(model_path)
         with open(mapping_path, 'rb') as f:
