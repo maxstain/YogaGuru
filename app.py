@@ -294,7 +294,7 @@ if not os.path.exists(ds_path):
     shutil.move(dataset_path, ds_path)
 # Process dataset and train model if not already done
 if not os.path.exists('Model/best_model.h5') or not os.path.exists('Model/class_mapping.pkl'):
-    df, standards = process_dataset("Dataset/1/DATASET/TRAIN")
+    df, standards = process_dataset("Dataset/DATASET/TRAIN")
     model, history = train_model()
 coach = YogaPoseCoach(model_path='Model/best_model.h5', mapping_path='Model/class_mapping.pkl')
 
