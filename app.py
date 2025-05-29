@@ -26,6 +26,8 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from sklearn.model_selection import train_test_split
 import numpy as np
+import kagglehub
+import shutil
 import cv2
 import pandas as pd
 import pickle
@@ -284,6 +286,12 @@ login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
+os.system("python -m pip install --upgrade certifi")
+ds_path = "./Dataset"
+# Process dataset and train model
+if not os.path.exists(ds_path):
+    dataset_path = kagglehub.dataset_download("niharika41298/yoga-poses-dataset")
+    shutil.move(dataset_path, ds_path)
 # Process dataset and train model if not already done
 if not os.path.exists('Model/best_model.h5') or not os.path.exists('Model/class_mapping.pkl'):
     df, standards = process_dataset("Dataset/1/DATASET/TRAIN")
