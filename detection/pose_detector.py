@@ -13,15 +13,37 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
+# Configure TensorFlow for GPU
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
+
+
+class VoiceCoach:
+    def __init__(self):
+        self.engine = pyttsx3.init()
+        self.engine.setProperty('rate', 160)
+        self.lock = threading.Lock()
+
+    def speak(self, msg):
+        def run():
+            with self.lock:
+                self.engine.say(msg)
+                self.engine.runAndWait()
+
+        threading.Thread(target=run).start()
+
 
 class YogaPoseCoach:
     def __init__(self, model_path='../Model/best_model.h5', mapping_path='../Model/class_mapping.pkl'):
-        # Load model and class mapping
         self.model = tf.keras.models.load_model(model_path)
         with open(mapping_path, 'rb') as f:
             self.idx_to_class = pickle.load(f)
 
-        # MediaPipe setup
         self.mp_pose = mp.solutions.pose
         self.mp_drawing = mp.solutions.drawing_utils
         self.pose = self.mp_pose.Pose(
@@ -31,23 +53,7 @@ class YogaPoseCoach:
             min_detection_confidence=0.7,
             min_tracking_confidence=0.7
         )
-
-        # Voice feedback
-        self.voice = self.VoiceCoach()
-
-    class VoiceCoach:
-        def __init__(self):
-            self.engine = pyttsx3.init()
-            self.engine.setProperty('rate', 160)
-            self.lock = threading.Lock()
-
-        def speak(self, msg):
-            def run():
-                with self.lock:
-                    self.engine.say(msg)
-                    self.engine.runAndWait()
-
-            threading.Thread(target=run).start()
+        self.voice = VoiceCoach()
 
     @staticmethod
     def calculate_angle(a, b, c):
@@ -131,7 +137,7 @@ class YogaPoseCoach:
                 points, angles = self.get_angles(results.pose_landmarks, frame.shape)
                 if angles is not None:
                     img_input = cv2.resize(rgb, (224, 224)) / 255.0
-                    pose_name, confidence = self.predict_pose(img_input, angles)
+                    pose_name, confidence = self.predict_pose(img_input, angles, )
                     angle_text = " ".join([f"{a:.1f}°" for a in angles])
                     cv2.putText(frame, angle_text, (30, 100),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
@@ -154,52 +160,3 @@ class YogaPoseCoach:
                 break
         cap.release()
         cv2.destroyAllWindows()
-
-
-def main():
-    """Legacy entry point for standalone testing."""
-    coach = YogaPoseCoach(model_path='Model/best_model.h5', mapping_path='Model/class_mapping.pkl')
-    coach.run_camera()
-
-
-def gen_pose_frames():
-    """Generator for Flask video streaming."""
-    coach = YogaPoseCoach(model_path='Model/best_model.h5', mapping_path='Model/class_mapping.pkl')
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    last_feedback = time.time()
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = coach.pose.process(rgb)
-        if results.pose_landmarks:
-            points, angles = coach.get_angles(results.pose_landmarks, frame.shape)
-            if angles is not None:
-                img_input = cv2.resize(rgb, (224, 224)) / 255.0
-                pose_name, confidence = coach.predict_pose(img_input, angles)
-                angle_text = " ".join([f"{a:.1f}°" for a in angles])
-                cv2.putText(frame, angle_text, (30, 100),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-                if time.time() - last_feedback > 3:
-                    feedback = coach.get_feedback(pose_name, angles, confidence)
-                    if feedback:
-                        coach.voice.speak(feedback[0])
-                        cv2.putText(frame, feedback[0], (30, 50),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
-                        last_feedback = time.time()
-                coach.mp_drawing.draw_landmarks(
-                    frame, results.pose_landmarks, coach.mp_pose.POSE_CONNECTIONS,
-                    landmark_drawing_spec=coach.mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2),
-                    connection_drawing_spec=coach.mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2)
-                )
-                cv2.putText(frame, f"{pose_name} ({confidence:.2f})", (30, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
-        # Encode frame as JPEG for streaming
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame_bytes = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-    cap.release()

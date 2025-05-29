@@ -18,7 +18,6 @@
         const poseInfo = JSON.parse('{{ pose_info | tojson | safe }}');
         const fileInput = document.getElementById('pose-image-upload');
         const resultDiv = document.getElementById('compare-result');
-        let stream = null;
 
         poseSection.classList.add('flex');
         cameraSection.classList.add('hidden');
@@ -95,23 +94,85 @@
 
         document.getElementById('compare-pose-btn').addEventListener('click', function () {
             if (!fileInput.files.length) {
-                resultDiv.textContent = "Please select an image.";
+                resultDiv.textContent = "Please select an image or video.";
                 return;
             }
-            const formData = new FormData();
-            formData.append('image', fileInput.files[0]);
-            fetch('/compare_pose', {
-                method: 'POST',
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) {
-                        resultDiv.textContent = data.error;
-                    } else {
-                        resultDiv.textContent = `Best match: ${data.pose} (${data.accuracy}% accuracy)`;
+            const file = fileInput.files[0];
+            if (file.type.startsWith('video/')) {
+                // Handle video: extract frames and send each to the backend
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.preload = 'auto';
+                video.muted = true;
+                video.currentTime = 0;
+                video.onloadedmetadata = function () {
+                    const duration = video.duration;
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    const frameInterval = 1; // seconds between frames
+                    let current = 0;
+                    let results = [];
+
+                    function processFrame() {
+                        if (current > duration) {
+                            // Aggregate results
+                            if (results.length === 0) {
+                                resultDiv.textContent = "No pose detected in video.";
+                                return;
+                            }
+                            // Find the most frequent pose
+                            const poseCounts = {};
+                            results.forEach(r => {
+                                poseCounts[r.pose] = (poseCounts[r.pose] || 0) + 1;
+                            });
+                            const bestPose = Object.entries(poseCounts).sort((a, b) => b[1] - a[1])[0][0];
+                            const avgAccuracy = (results.filter(r => r.pose === bestPose).reduce((sum, r) => sum + r.accuracy, 0) / poseCounts[bestPose]).toFixed(2);
+                            resultDiv.textContent = `Best match: ${bestPose} (${avgAccuracy}% average accuracy)`;
+                            return;
+                        }
+                        video.currentTime = current;
                     }
-                });
+
+                    video.ontimeupdate = function () {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob(function (blob) {
+                            const formData = new FormData();
+                            formData.append('image', blob, 'frame.jpg');
+                            fetch('/compare_pose', {
+                                method: 'POST',
+                                body: formData
+                            })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (!data.error) {
+                                        results.push(data);
+                                    }
+                                    current += frameInterval;
+                                    processFrame();
+                                });
+                        }, 'image/jpeg');
+                    };
+                    processFrame();
+                };
+            } else {
+                // Handle image (existing logic)
+                const formData = new FormData();
+                formData.append('image', file);
+                fetch('/compare_pose', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            resultDiv.textContent = data.error;
+                        } else {
+                            resultDiv.textContent = `Best match: ${data.pose} (${data.accuracy}% accuracy)`;
+                        }
+                    });
+            }
         });
     });
 </script>
@@ -157,7 +218,8 @@
                             class="w-full py-5 px-1 text-gray-800 bg-white/10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer"
                             type="file"
                             id="pose-image-upload"
-                            accept="image/*"/>
+                            accept="image/*,video/*"
+                    />
                     <button id="compare-pose-btn" class="px-4 py-2 bg-green-600 text-white rounded">
                         Compare Pose
                     </button>
