@@ -6,7 +6,6 @@
         const positionSelect = document.getElementById('position-select');
         const positionImage = document.getElementById('position-image');
         const positionPurpose = document.getElementById('position-purpose');
-        const startButton = document.getElementById('start-button');
         const openCameraButton = document.getElementById('open-camera-button');
         const positionSteps = document.getElementById('position-steps');
         const cameraSection = document.getElementById('camera-section');
@@ -44,11 +43,6 @@
                 positionImage.src = '/static/Yoga_splash.png';
                 positionSteps.innerHTML = '<li>Select a position to see the steps.</li>';
             }
-        });
-
-        // Handle start button click
-        startButton.addEventListener('click', function () {
-            alert('Starting the yoga session!');
         });
 
         openCameraButton.addEventListener('click', function () {
@@ -237,11 +231,6 @@
         <div class="flex flex-col items-center space-y-4 mt-8">
             <img id="position-image" src="{{ url_for('static', filename='Yoga_splash.png') }}"
                  alt="Yoga Position" class="w-[500px] h-[400px] object-center rounded-lg">
-            <button id="start-button"
-                    class="mt-4 px-6 py-2 bg-green-700 text-white font-medium rounded-full shadow-md hover:bg-green-800"
-            >
-                Start
-            </button>
         </div>
     </div>
 </div>
