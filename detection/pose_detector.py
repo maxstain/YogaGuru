@@ -39,7 +39,7 @@ class VoiceCoach:
 
 
 class YogaPoseCoach:
-    def __init__(self, model_path='../Model/best_model.h5', mapping_path='../Model/class_mapping.pkl'):
+    def __init__(self, model_path='../Model/mobilenet_best_model.h5', mapping_path='../Model/class_mapping.pkl'):
         self.model = tf.keras.models.load_model(model_path)
         with open(mapping_path, 'rb') as f:
             self.idx_to_class = pickle.load(f)
